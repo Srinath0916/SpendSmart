@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-yonshkigr&ppzsys*!i0vt4c%b+&&5ea^399jm5t+w&67=t9y2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Will be restricted in production
 
 
 # Application definition
@@ -126,7 +126,11 @@ STATIC_URL = "static/"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:5173",
 ]
+
+# Allow all origins in development (will be restricted in production)
+CORS_ALLOW_ALL_ORIGINS = True
 
 # REST Framework Settings
 REST_FRAMEWORK = {

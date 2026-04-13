@@ -34,7 +34,6 @@ def detect_duplicates(csv_file, user):
     for index, row in df.iterrows():
         # Check if transaction already exists
         existing = Transaction.objects.filter(
-            user=user,
             date=row['Date'],
             amount=row['Amount']
         ).first()

@@ -1,14 +1,52 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { authAPI, setAuthToken } from '../utils/api'
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Mock authentication - redirect to dashboard
-    navigate('/dashboard')
+    setError('')
+    setLoading(true)
+
+    const formData = new FormData(e.target)
+    const email = formData.get('email')
+    const password = formData.get('password')
+    const fullName = formData.get('fullName')
+
+    try {
+      if (isLogin) {
+        // Login - use email as username for now
+        const username = email.split('@')[0]
+        const response = await authAPI.login(username, password)
+        
+        // Store tokens and user info
+        setAuthToken(response.tokens.access)
+        localStorage.setItem('refresh_token', response.tokens.refresh)
+        localStorage.setItem('user', JSON.stringify(response.user))
+        
+        navigate('/dashboard')
+      } else {
+        // Register
+        const username = email.split('@')[0]
+        const response = await authAPI.register(username, email, password, fullName)
+        
+        // Store tokens and user info
+        setAuthToken(response.tokens.access)
+        localStorage.setItem('refresh_token', response.tokens.refresh)
+        localStorage.setItem('user', JSON.stringify(response.user))
+        
+        navigate('/dashboard')
+      }
+    } catch (err) {
+      setError(err.message || 'Authentication failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogleSignIn = () => {
@@ -38,6 +76,13 @@ export default function AuthPage() {
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
@@ -47,6 +92,7 @@ export default function AuthPage() {
                 </label>
                 <input
                   type="text"
+                  name="fullName"
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   placeholder="Mattapalli Srinath Rao"
                   required
@@ -60,6 +106,7 @@ export default function AuthPage() {
               </label>
               <input
                 type="email"
+                name="email"
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 placeholder="you@example.com"
                 required
@@ -72,6 +119,7 @@ export default function AuthPage() {
               </label>
               <input
                 type="password"
+                name="password"
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 placeholder="••••••••"
                 required
@@ -95,9 +143,10 @@ export default function AuthPage() {
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-sm"
+              disabled={loading}
+              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
             </button>
           </form>
 
