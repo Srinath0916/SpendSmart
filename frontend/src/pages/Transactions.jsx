@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Filter, Download, Plus } from 'lucide-react'
+import { Download, Plus, Trash2, Edit2 } from 'lucide-react'
 import { transactionAPI, categoryAPI } from '../utils/api'
+import QuickAddModal from '../components/QuickAddModal'
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([])
@@ -8,6 +9,7 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true)
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterSource, setFilterSource] = useState('all')
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -37,6 +39,43 @@ export default function Transactions() {
 
   const totalIncome = transactions.filter(t => parseFloat(t.amount) > 0).reduce((sum, t) => sum + parseFloat(t.amount), 0)
   const totalExpense = transactions.filter(t => parseFloat(t.amount) < 0).reduce((sum, t) => sum + Math.abs(parseFloat(t.amount)), 0)
+
+  const handleExport = () => {
+    // Create CSV content
+    const csvContent = [
+      ['Date', 'Description', 'Category', 'Source', 'Amount', 'Status'],
+      ...filteredTransactions.map(t => [
+        t.date,
+        t.description,
+        t.category_name || 'Uncategorized',
+        t.source,
+        t.amount,
+        t.status
+      ])
+    ].map(row => row.join(',')).join('\n')
+
+    // Create download
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const handleDelete = async (id, description) => {
+    if (confirm(`Are you sure you want to delete "${description}"?`)) {
+      try {
+        await transactionAPI.delete(id)
+        alert('Transaction deleted successfully!')
+        fetchData() // Refresh the list
+      } catch (error) {
+        console.error('Error deleting transaction:', error)
+        alert('Failed to delete transaction')
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -92,11 +131,17 @@ export default function Transactions() {
           </div>
 
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+            <button 
+              onClick={handleExport}
+              className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            >
               <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">Export CSV</span>
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            <button 
+              onClick={() => setShowQuickAdd(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Transaction</span>
             </button>
@@ -116,12 +161,13 @@ export default function Transactions() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Source</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Amount</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {filteredTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan="7" className="px-6 py-8 text-center text-slate-500">
                     No transactions found
                   </td>
                 </tr>
@@ -156,6 +202,17 @@ export default function Transactions() {
                         {transaction.status}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleDelete(transaction.id, transaction.description)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete transaction"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -163,6 +220,14 @@ export default function Transactions() {
           </table>
         </div>
       </div>
+
+      {/* Quick Add Modal */}
+      {showQuickAdd && (
+        <QuickAddModal onClose={() => {
+          setShowQuickAdd(false)
+          fetchData() // Refresh the list after adding
+        }} />
+      )}
     </div>
   )
 }

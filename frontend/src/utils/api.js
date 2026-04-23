@@ -73,6 +73,15 @@ export const authAPI = {
       method: 'POST',
       body: JSON.stringify({ refresh_token }),
     }),
+
+  changePassword: (currentPassword, newPassword) =>
+    apiRequest('/auth/change-password/', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        current_password: currentPassword, 
+        new_password: newPassword 
+      }),
+    }),
 };
 
 // Transaction APIs
@@ -134,20 +143,66 @@ export const dashboardAPI = {
   getQuickStats: () => apiRequest('/quick-stats/'),
 };
 
-// CSV Upload APIs
-export const csvAPI = {
-  upload: (file) => {
+// CSV/PDF Upload APIs
+export const statementAPI = {
+  upload: (file, password = null) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiRequest('/csv/upload/', {
+    if (password) {
+      formData.append('password', password);
+    }
+    return apiRequest('/statement/upload/', {
       method: 'POST',
       body: formData,
     });
   },
 
-  confirmImport: (transactions) =>
-    apiRequest('/csv/confirm/', {
+  resolveConflicts: (newTransactions, conflictResolutions) =>
+    apiRequest('/statement/resolve/', {
       method: 'POST',
-      body: JSON.stringify({ transactions }),
+      body: JSON.stringify({
+        new_transactions: newTransactions,
+        conflict_resolutions: conflictResolutions
+      }),
     }),
+};
+
+// Settings APIs
+export const settingsAPI = {
+  getCurrent: () => apiRequest('/settings/current/'),
+  
+  update: (id, data) =>
+    apiRequest(`/settings/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+};
+
+// Analytics APIs
+export const analyticsAPI = {
+  getData: (filter = 'month') => apiRequest(`/analytics/?filter=${filter}`),
+};
+
+// Event/Trip APIs
+export const eventAPI = {
+  getAll: () => apiRequest('/events/'),
+
+  create: (data) =>
+    apiRequest('/events/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    apiRequest(`/events/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id) =>
+    apiRequest(`/events/${id}/`, {
+      method: 'DELETE',
+    }),
+
+  getTransactions: (id) => apiRequest(`/events/${id}/transactions/`),
 };

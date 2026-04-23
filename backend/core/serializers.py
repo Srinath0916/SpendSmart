@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Transaction, Budget
+from .models import Category, Transaction, Budget, UserSettings, Event
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,3 +20,15 @@ class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
         fields = ['id', 'category', 'category_name', 'limit_amount', 'month']
+
+class UserSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSettings
+        fields = ['id', 'starting_balance', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['id', 'name', 'start_date', 'end_date', 'budget', 'description', 'created_at']
+        read_only_fields = ['created_at']

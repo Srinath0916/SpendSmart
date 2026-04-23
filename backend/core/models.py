@@ -73,3 +73,29 @@ class Budget(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.month.strftime('%B %Y')} - ₹{self.limit_amount}"
+
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="settings")
+    starting_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - Starting Balance: ₹{self.starting_balance}"
+
+
+class Event(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
+    name = models.CharField(max_length=200)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    budget = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-start_date"]
+
+    def __str__(self):
+        return f"{self.name} ({self.start_date} to {self.end_date})"

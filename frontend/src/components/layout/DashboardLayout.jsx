@@ -9,7 +9,8 @@ import {
   Menu, 
   X,
   Search,
-  User
+  User,
+  MapPin
 } from 'lucide-react'
 
 export default function DashboardLayout() {
@@ -21,6 +22,7 @@ export default function DashboardLayout() {
     { name: 'Transactions', href: '/transactions', icon: Receipt },
     { name: 'Budgets', href: '/budgets', icon: Wallet },
     { name: 'Statement Import', href: '/import', icon: Upload },
+    { name: 'Events', href: '/trips', icon: MapPin },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
 

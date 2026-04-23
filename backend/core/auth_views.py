@@ -116,3 +116,26 @@ def logout(request):
         return Response({'message': 'Logout successful'})
     except Exception:
         return Response({'message': 'Logout successful'})
+
+
+@api_view(['POST'])
+@permission_classes([])
+def change_password(request):
+    """Change user password"""
+    user = request.user if request.user.is_authenticated else User.objects.get(username='demo')
+    
+    current_password = request.data.get('current_password')
+    new_password = request.data.get('new_password')
+    
+    if not current_password or not new_password:
+        return Response({'error': 'Both current and new password are required'}, status=400)
+    
+    # Check current password
+    if not user.check_password(current_password):
+        return Response({'error': 'Current password is incorrect'}, status=400)
+    
+    # Set new password
+    user.set_password(new_password)
+    user.save()
+    
+    return Response({'message': 'Password changed successfully'})
