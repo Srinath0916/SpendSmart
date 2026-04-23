@@ -12,8 +12,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Automatically assign user when creating category
         from django.contrib.auth.models import User
-        user = self.request.user if self.request.user.is_authenticated else User.objects.get(username='demo')
-        serializer.save(user=user)
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
+            serializer.save(user=user)
 
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
@@ -34,10 +40,16 @@ class TransactionViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         # Automatically assign user when creating transaction
-        # Use demo user if not authenticated
         from django.contrib.auth.models import User
-        user = self.request.user if self.request.user.is_authenticated else User.objects.get(username='demo')
-        serializer.save(user=user)
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            # Try to get or create demo user for unauthenticated requests
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
+            serializer.save(user=user)
 
 class BudgetViewSet(viewsets.ModelViewSet):
     queryset = Budget.objects.all()
@@ -46,8 +58,14 @@ class BudgetViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Automatically assign user when creating budget
         from django.contrib.auth.models import User
-        user = self.request.user if self.request.user.is_authenticated else User.objects.get(username='demo')
-        serializer.save(user=user)
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
+            serializer.save(user=user)
 
 class UserSettingsViewSet(viewsets.ModelViewSet):
     serializer_class = UserSettingsSerializer
@@ -56,21 +74,34 @@ class UserSettingsViewSet(viewsets.ModelViewSet):
         from django.contrib.auth.models import User
         if self.request.user.is_authenticated:
             return UserSettings.objects.filter(user=self.request.user)
-        return UserSettings.objects.filter(user__username="demo")
+        user, created = User.objects.get_or_create(
+            username='demo',
+            defaults={'email': 'demo@example.com'}
+        )
+        return UserSettings.objects.filter(user=user)
 
     def perform_create(self, serializer):
         from django.contrib.auth.models import User
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
         else:
-            demo_user = User.objects.get(username="demo")
-            serializer.save(user=demo_user)
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
+            serializer.save(user=user)
 
     @action(detail=False, methods=['get'])
     def current(self, request):
         """Get current user's settings"""
         from django.contrib.auth.models import User
-        user = request.user if request.user.is_authenticated else User.objects.get(username="demo")
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
         settings, created = UserSettings.objects.get_or_create(user=user)
         serializer = self.get_serializer(settings)
         return Response(serializer.data)
@@ -82,22 +113,35 @@ class EventViewSet(viewsets.ModelViewSet):
         from django.contrib.auth.models import User
         if self.request.user.is_authenticated:
             return Event.objects.filter(user=self.request.user)
-        return Event.objects.filter(user__username="demo")
+        user, created = User.objects.get_or_create(
+            username='demo',
+            defaults={'email': 'demo@example.com'}
+        )
+        return Event.objects.filter(user=user)
 
     def perform_create(self, serializer):
         from django.contrib.auth.models import User
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
         else:
-            demo_user = User.objects.get(username="demo")
-            serializer.save(user=demo_user)
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
+            serializer.save(user=user)
 
     @action(detail=True, methods=['get'])
     def transactions(self, request, pk=None):
         """Get all transactions for this event's date range"""
         from django.contrib.auth.models import User
         event = self.get_object()
-        user = request.user if request.user.is_authenticated else User.objects.get(username="demo")
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user, created = User.objects.get_or_create(
+                username='demo',
+                defaults={'email': 'demo@example.com'}
+            )
         
         transactions = Transaction.objects.filter(
             user=user,

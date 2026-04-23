@@ -122,7 +122,14 @@ def logout(request):
 @permission_classes([])
 def change_password(request):
     """Change user password"""
-    user = request.user if request.user.is_authenticated else User.objects.get(username='demo')
+    from django.contrib.auth.models import User
+    if request.user.is_authenticated:
+        user = request.user
+    else:
+        user, created = User.objects.get_or_create(
+            username='demo',
+            defaults={'email': 'demo@example.com'}
+        )
     
     current_password = request.data.get('current_password')
     new_password = request.data.get('new_password')

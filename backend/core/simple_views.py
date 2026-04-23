@@ -23,7 +23,14 @@ def health_check(request):
 @api_view(['GET'])
 def quick_stats(request):
     """Get quick statistics for dashboard with dynamic balance"""
-    user = request.user if request.user.is_authenticated else User.objects.get(username='demo')
+    from django.contrib.auth.models import User
+    if request.user.is_authenticated:
+        user = request.user
+    else:
+        user, created = User.objects.get_or_create(
+            username='demo',
+            defaults={'email': 'demo@example.com'}
+        )
     
     # Get user settings for starting balance
     settings, _ = UserSettings.objects.get_or_create(user=user)
@@ -57,7 +64,14 @@ def quick_stats(request):
 @api_view(['GET'])
 def analytics_data(request):
     """Get analytics data with time filters"""
-    user = request.user if request.user.is_authenticated else User.objects.get(username='demo')
+    from django.contrib.auth.models import User
+    if request.user.is_authenticated:
+        user = request.user
+    else:
+        user, created = User.objects.get_or_create(
+            username='demo',
+            defaults={'email': 'demo@example.com'}
+        )
     time_filter = request.GET.get('filter', 'month')  # week, month, year, all
     
     # Calculate date range

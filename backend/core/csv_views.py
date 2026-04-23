@@ -132,7 +132,13 @@ def resolve_conflicts(request):
     conflict_resolutions = request.data.get('conflict_resolutions', [])
     
     from django.contrib.auth.models import User
-    user = request.user if request.user.is_authenticated else User.objects.get(username='demo')
+    if request.user.is_authenticated:
+        user = request.user
+    else:
+        user, created = User.objects.get_or_create(
+            username='demo',
+            defaults={'email': 'demo@example.com'}
+        )
     
     created = []
     updated = []
