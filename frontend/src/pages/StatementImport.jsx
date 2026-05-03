@@ -88,9 +88,16 @@ export default function StatementImport() {
 
   const downloadSampleCSV = () => {
     const csvContent = `Date,Amount,Description,Category
-2026-04-20,-450.00,Swiggy Order,Food
-2026-04-19,30000.00,Salary Credit,Income
-2026-04-18,-180.00,Uber Ride,Travel`
+2026-05-03,-850.00,Amazon Shopping,Shopping
+2026-05-02,-320.00,Dominos Pizza,Food
+2026-05-01,-150.00,Metro Card Recharge,Travel
+2026-04-30,-500.00,Electricity Bill,Utilities
+2026-04-29,-1200.00,Grocery Shopping,Food
+2026-04-28,-75.00,Coffee Shop,Food
+2026-04-27,-2500.00,Rent Payment,Housing
+2026-04-26,-180.00,Mobile Recharge,Utilities
+2026-04-25,-450.00,Restaurant Dinner,Food
+2026-04-24,-95.00,Book Purchase,Shopping`
     
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
