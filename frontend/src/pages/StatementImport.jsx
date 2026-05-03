@@ -20,7 +20,6 @@ export default function StatementImport() {
         setFile(selectedFile)
         setUploadResult(null)
         setError('')
-        // Show password input for PDFs
         setShowPasswordInput(fileName.endsWith('.pdf'))
         setPassword('')
       } else {
@@ -39,7 +38,6 @@ export default function StatementImport() {
       const result = await statementAPI.upload(file, password)
       setUploadResult(result)
       
-      // Initialize conflict resolutions
       const initialResolutions = {}
       result.data.conflicts.forEach((conflict, idx) => {
         initialResolutions[idx] = 'keep_existing'
@@ -64,7 +62,6 @@ export default function StatementImport() {
       setUploading(true)
       setError('')
       
-      // Prepare conflict resolutions
       const resolutions = uploadResult.data.conflicts.map((conflict, idx) => ({
         existing_id: conflict.existing.id,
         action: conflictResolutions[idx],
@@ -76,10 +73,8 @@ export default function StatementImport() {
         resolutions
       )
       
-      // Show success message
       alert(`Successfully imported ${uploadResult.data.new_transactions.length} new transactions!`)
       
-      // Reset form
       setFile(null)
       setUploadResult(null)
       setConflictResolutions({})
@@ -107,16 +102,16 @@ export default function StatementImport() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-semibold text-slate-800">Bank Statement Import</h2>
+        <h2 className="text-3xl font-bold text-slate-800">Bank Statement Import</h2>
         <p className="text-slate-500 mt-1">Upload CSV or PDF bank statements for bulk transaction import</p>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start shadow-soft">
           <AlertCircle className="h-5 w-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-semibold text-red-800">Upload Failed</p>
@@ -126,10 +121,10 @@ export default function StatementImport() {
       )}
 
       {/* Upload Area */}
-      <div className="bg-white rounded-lg shadow-sm p-8 border border-slate-200">
+      <div className="bg-white rounded-2xl shadow-soft hover:shadow-soft-lg transition-all duration-300 p-8 border border-slate-100">
         <div className="max-w-2xl mx-auto">
           {/* File Upload Box */}
-          <div className="border-2 border-dashed border-slate-300 rounded-lg p-12 text-center hover:border-indigo-400 transition-colors bg-slate-50">
+          <div className="border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center hover:border-indigo-500 transition-all duration-200 bg-slate-50">
             <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-800 mb-2">
               {file ? file.name : 'Drop your CSV or PDF file here'}
@@ -146,7 +141,7 @@ export default function StatementImport() {
             />
             <label
               htmlFor="statement-upload"
-              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer font-medium"
+              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 cursor-pointer font-medium shadow-lg"
             >
               <FileText className="h-5 w-5 mr-2" />
               Select File
@@ -156,7 +151,6 @@ export default function StatementImport() {
           {/* Upload Button */}
           {file && !uploadResult && (
             <div className="mt-6 space-y-4">
-              {/* Password Input for PDFs */}
               {showPasswordInput && (
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -167,7 +161,7 @@ export default function StatementImport() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter PDF password"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200"
                   />
                   <p className="text-xs text-slate-500 mt-1">Leave blank if PDF is not password-protected</p>
                 </div>
@@ -181,14 +175,14 @@ export default function StatementImport() {
                     setPassword('')
                     setShowPasswordInput(false)
                   }}
-                  className="flex-1 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-semibold"
+                  className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all duration-200 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUpload}
                   disabled={uploading}
-                  className="flex-1 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-semibold disabled:bg-slate-400 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all duration-200 font-semibold disabled:bg-slate-400 disabled:cursor-not-allowed shadow-soft hover:shadow-soft-lg"
                 >
                   {uploading ? 'Processing...' : 'Upload and Process'}
                 </button>
@@ -200,7 +194,7 @@ export default function StatementImport() {
           {uploadResult && (
             <div className="mt-6 space-y-4">
               {/* Summary */}
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl shadow-soft">
                 <div className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-blue-600 mr-3 mt-0.5" />
                   <div>
@@ -223,10 +217,10 @@ export default function StatementImport() {
                   </div>
                   
                   {uploadResult.data.conflicts.map((conflict, idx) => (
-                    <div key={idx} className="bg-white border border-amber-200 rounded-lg p-4">
+                    <div key={idx} className="bg-white border border-amber-200 rounded-2xl p-4 shadow-soft">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         {/* Existing */}
-                        <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
                           <p className="text-xs text-slate-500 mb-1">Your Existing Entry</p>
                           <p className="font-medium text-slate-800">{conflict.existing.description}</p>
                           <p className="text-sm text-slate-600 mt-1">
@@ -238,7 +232,7 @@ export default function StatementImport() {
                         </div>
 
                         {/* Uploaded */}
-                        <div className="bg-indigo-50 p-3 rounded border border-indigo-200">
+                        <div className="bg-indigo-600-light p-3 rounded-xl border border-indigo-600">
                           <p className="text-xs text-indigo-600 mb-1">From Uploaded File</p>
                           <p className="font-medium text-slate-800">{conflict.uploaded.description}</p>
                           <p className="text-sm text-slate-600 mt-1">
@@ -251,9 +245,9 @@ export default function StatementImport() {
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleConflictChoice(idx, 'keep_existing')}
-                          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          className={`flex-1 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                             conflictResolutions[idx] === 'keep_existing'
-                              ? 'bg-slate-600 text-white'
+                              ? 'bg-slate-600 text-white shadow-soft'
                               : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                           }`}
                         >
@@ -261,19 +255,19 @@ export default function StatementImport() {
                         </button>
                         <button
                           onClick={() => handleConflictChoice(idx, 'replace')}
-                          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          className={`flex-1 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                             conflictResolutions[idx] === 'replace'
-                              ? 'bg-indigo-600 text-white'
-                              : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                              ? 'bg-indigo-600 text-white shadow-soft'
+                              : 'bg-indigo-600-light text-indigo-600 hover:bg-indigo-600 hover:text-white'
                           }`}
                         >
                           Replace with Upload
                         </button>
                         <button
                           onClick={() => handleConflictChoice(idx, 'keep_both')}
-                          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          className={`flex-1 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                             conflictResolutions[idx] === 'keep_both'
-                              ? 'bg-emerald-600 text-white'
+                              ? 'bg-emerald-600 text-white shadow-soft'
                               : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                           }`}
                         >
@@ -294,14 +288,14 @@ export default function StatementImport() {
                     setConflictResolutions({})
                     setError('')
                   }}
-                  className="flex-1 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-semibold"
+                  className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all duration-200 font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleFinalImport}
                   disabled={uploading}
-                  className="flex-1 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold disabled:bg-slate-400"
+                  className="flex-1 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-semibold shadow-lg"
                 >
                   {uploading ? 'Importing...' : `Import ${uploadResult.summary.new_transactions} New Transaction${uploadResult.summary.new_transactions !== 1 ? 's' : ''}`}
                 </button>
@@ -312,7 +306,7 @@ export default function StatementImport() {
       </div>
 
       {/* Instructions */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+      <div className="bg-white rounded-2xl shadow-soft hover:shadow-soft-lg transition-all duration-300 p-6 border border-slate-100">
         <h3 className="text-lg font-semibold text-slate-800 mb-4">Supported Formats</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-start space-x-3">
@@ -324,7 +318,7 @@ export default function StatementImport() {
               </p>
               <button 
                 onClick={downloadSampleCSV}
-                className="text-sm text-indigo-600 hover:text-indigo-700 mt-2"
+                className="text-sm text-indigo-600 hover:text-indigo-900 mt-2 font-medium transition-colors duration-200"
               >
                 Download Sample CSV
               </button>

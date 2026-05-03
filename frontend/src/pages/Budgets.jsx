@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, TrendingUp, Edit2, Trash2 } from 'lucide-react'
 import { budgetAPI, categoryAPI, transactionAPI } from '../utils/api'
+import EmptyState from '../components/EmptyState'
 
 export default function Budgets() {
   const [budgets, setBudgets] = useState([])
@@ -44,7 +45,7 @@ export default function Budgets() {
       await budgetAPI.create({
         category: parseInt(categoryId),
         limit_amount: limitAmount,
-        month: new Date().toISOString().slice(0, 7) + '-01' // First day of current month
+        month: new Date().toISOString().slice(0, 7) + '-01'
       })
       setShowAddBudget(false)
       fetchData()
@@ -66,13 +67,13 @@ export default function Budgets() {
 
   const getProgressColor = (percentage) => {
     if (percentage >= 90) return 'bg-red-500'
-    if (percentage >= 70) return 'bg-yellow-500'
+    if (percentage >= 70) return 'bg-amber-500'
     return 'bg-emerald-500'
   }
 
   const getProgressTextColor = (percentage) => {
     if (percentage >= 90) return 'text-red-600'
-    if (percentage >= 70) return 'text-yellow-600'
+    if (percentage >= 70) return 'text-amber-600'
     return 'text-emerald-600'
   }
 
@@ -80,40 +81,39 @@ export default function Budgets() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-slate-600">Loading budgets...</div>
-      </div>
+      </div> 
     )
   }
 
   const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-800">Budget Management</h2>
+          <h2 className="text-3xl font-bold text-slate-800">Budget Management</h2>
           <p className="text-slate-500 mt-1">Track your spending limits for {currentMonth}</p>
         </div>
         <button
           onClick={() => setShowAddBudget(true)}
-          className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+          className="flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-medium shadow-soft hover:shadow-soft-lg"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-5 w-5 mr-2" />
           Add Budget
         </button>
       </div>
 
       {/* Budget Cards */}
       {budgets.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <p className="text-slate-500 mb-4">No budgets set yet</p>
-          <button
-            onClick={() => setShowAddBudget(true)}
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Your First Budget
-          </button>
+        <div className="bg-white rounded-2xl shadow-soft p-12 border border-slate-100">
+          <EmptyState
+            icon={TrendingUp}
+            title="No budgets set yet"
+            description="Create your first budget to start tracking your spending limits"
+            action={() => setShowAddBudget(true)}
+            actionLabel="Create Your First Budget"
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -125,7 +125,7 @@ export default function Budgets() {
             const category = categories.find(c => c.id === budget.category)
 
             return (
-              <div key={budget.id} className="bg-white rounded-lg shadow-sm p-6">
+              <div key={budget.id} className="bg-white rounded-2xl shadow-soft hover:shadow-soft-lg transition-all duration-300 p-6 border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-slate-800">
                     {category?.name || 'Unknown'}
@@ -137,9 +137,9 @@ export default function Budgets() {
 
                 {/* Progress Bar */}
                 <div className="mb-4">
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-slate-200 rounded-full h-3">
                     <div
-                      className={`h-3 rounded-full transition-all ${getProgressColor(percentage)}`}
+                      className={`h-3 rounded-full transition-all duration-500 ${getProgressColor(percentage)}`}
                       style={{ width: `${Math.min(percentage, 100)}%` }}
                     />
                   </div>
@@ -165,13 +165,13 @@ export default function Budgets() {
 
                 {/* Alert */}
                 {percentage >= 90 && (
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-sm text-red-700 font-medium">⚠️ Budget limit exceeded!</p>
                   </div>
                 )}
                 {percentage >= 70 && percentage < 90 && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-700 font-medium">⚡ Approaching budget limit</p>
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                    <p className="text-sm text-amber-700 font-medium">⚡ Approaching budget limit</p>
                   </div>
                 )}
               </div>
@@ -184,7 +184,7 @@ export default function Budgets() {
       {budgets.length > 0 && (
         <>
           {/* Uncategorized Spending Card */}
-          <div className="bg-slate-50 rounded-lg border border-slate-200 p-6">
+          <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-slate-700">Uncategorized Spending</h3>
@@ -203,7 +203,7 @@ export default function Budgets() {
           </div>
 
           {/* Overall Budget Health */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white rounded-2xl shadow-soft hover:shadow-soft-lg transition-all duration-300 p-6 border border-slate-100">
             <h3 className="text-lg font-semibold text-slate-800 mb-4">Overall Budget Health</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
@@ -228,7 +228,7 @@ export default function Budgets() {
             
             {/* Total App Expenses Summary */}
             <div className="mt-6 pt-6 border-t border-slate-200">
-              <div className="bg-indigo-50 rounded-lg p-4">
+              <div className="bg-indigo-600-light rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-indigo-900">Total App Expenses (This Month)</p>
@@ -249,7 +249,7 @@ export default function Budgets() {
                     ).toLocaleString()}
                   </p>
                 </div>
-                <p className="text-xs text-indigo-700 mt-2">
+                <p className="text-xs text-indigo-900 mt-2">
                   ✓ This matches your Dashboard "Total Expenses" exactly
                 </p>
               </div>
@@ -260,13 +260,13 @@ export default function Budgets() {
 
       {/* Add Budget Modal */}
       {showAddBudget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50" onClick={() => setShowAddBudget(false)} />
-          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={() => setShowAddBudget(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-scale-in">
             <h3 className="text-xl font-semibold text-slate-800 mb-4">Add New Budget</h3>
             
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                 {error}
               </div>
             )}
@@ -276,7 +276,7 @@ export default function Budgets() {
                 <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
                 <select 
                   name="category"
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200"
                   required
                 >
                   <option value="">Select category</option>
@@ -291,7 +291,7 @@ export default function Budgets() {
                   type="number"
                   name="limit"
                   placeholder="5000"
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200"
                   required
                   min="1"
                   step="0.01"
@@ -301,13 +301,13 @@ export default function Budgets() {
                 <button
                   type="button"
                   onClick={() => setShowAddBudget(false)}
-                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all duration-200 font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-medium shadow-soft hover:shadow-soft-lg"
                 >
                   Create Budget
                 </button>

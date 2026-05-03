@@ -35,27 +35,38 @@ def quick_stats(request):
     # Get user settings for starting balance
     settings, _ = UserSettings.objects.get_or_create(user=user)
     starting_balance = settings.starting_balance
+    print(f"DEBUG: User is {user.username} (ID: {user.id})")
     
-    # Get all transactions
-    transactions = Transaction.objects.filter(user=user)
+    # Get current month's date range
+    today = datetime.now().date()
+    current_month = today.strftime('%Y-%m')
+    print(f"DEBUG: Today is {today}, filtering for year={today.year}, month={today.month}")
     
-    # Calculate expenses and income separately
-    total_expenses = Decimal('0')
-    total_income = Decimal('0')
+    # Get only CURRENT MONTH transactions
+    transactions = Transaction.objects.filter(
+        user=user,
+        date__year=today.year,
+        date__month=today.month
+    )
+    print(f"DEBUG: Found {transactions.count()} transactions for current month")
+    
+    # Calculate expenses and income separately for CURRENT MONTH
+    monthly_expenses = Decimal('0')
+    monthly_income = Decimal('0')
     
     for trans in transactions:
         if trans.amount < 0:  # Expenses
-            total_expenses += abs(trans.amount)
+            monthly_expenses += abs(trans.amount)
         elif trans.amount > 0:  # Income
-            total_income += trans.amount
+            monthly_income += trans.amount
     
-    # Balance = starting balance - expenses (income not added to balance)
-    total_balance = starting_balance - total_expenses
+    # Balance = starting balance - THIS MONTH's expenses
+    total_balance = starting_balance - monthly_expenses
     
     return Response({
         'total_balance': float(total_balance),
-        'monthly_income': float(total_income),  # Track income separately for display
-        'monthly_expenses': float(total_expenses),
+        'monthly_income': float(monthly_income),
+        'monthly_expenses': float(monthly_expenses),
         'starting_balance': float(starting_balance),
         'total_transactions': transactions.count(),
         'status': 'success'
@@ -109,31 +120,31 @@ def analytics_data(request):
             'net': daily_data[date_str]['income'] - daily_data[date_str]['expenses']
         })
     
-    # Calculate best/worst months
-    monthly_data = defaultdict(lambda: {'income': 0, 'expenses': 0})
+    # Calculate best/worst months based on EXPENSES ONLY
+    monthly_data = defaultdict(lambda: {'expenses': 0})
     all_transactions = Transaction.objects.filter(user=user)
     
     for trans in all_transactions:
         month_key = trans.date.strftime('%Y-%m')
-        if trans.amount >= 0:
-            monthly_data[month_key]['income'] += float(trans.amount)
-        else:
+        # Only count expenses (negative amounts)
+        if trans.amount < 0:
             monthly_data[month_key]['expenses'] += abs(float(trans.amount))
     
-    # Find best and worst months
-    best_month = None
-    worst_month = None
-    best_savings = float('-inf')
-    worst_savings = float('inf')
+    # Find best and worst months based on expenses
+    best_month = None  # Lowest expenses
+    worst_month = None  # Highest expenses
+    lowest_expenses = float('inf')
+    highest_expenses = float('-inf')
     
     for month, data in monthly_data.items():
-        savings = data['income'] - data['expenses']
-        if savings > best_savings:
-            best_savings = savings
-            best_month = {'month': month, 'savings': savings}
-        if savings < worst_savings:
-            worst_savings = savings
-            worst_month = {'month': month, 'savings': savings}
+        expenses = data['expenses']
+        if expenses > 0:  # Only consider months with expenses
+            if expenses < lowest_expenses:
+                lowest_expenses = expenses
+                best_month = {'month': month, 'savings': lowest_expenses}
+            if expenses > highest_expenses:
+                highest_expenses = expenses
+                worst_month = {'month': month, 'savings': highest_expenses}
     
     return Response({
         'chart_data': chart_data,

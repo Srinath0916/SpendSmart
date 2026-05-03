@@ -6,7 +6,7 @@ import Transactions from './pages/Transactions'
 import Budgets from './pages/Budgets'
 import StatementImport from './pages/StatementImport'
 import Settings from './pages/Settings'
-import Trips from './pages/Trips'
+import Events from './pages/Events'
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
           <Route path="transactions" element={<Transactions />} />
           <Route path="budgets" element={<Budgets />} />
           <Route path="import" element={<StatementImport />} />
-          <Route path="trips" element={<Trips />} />
+          <Route path="trips" element={<Events />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>

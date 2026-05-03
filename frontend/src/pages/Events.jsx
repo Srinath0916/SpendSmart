@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Calendar, Plus, Trash2, MapPin, DollarSign } from 'lucide-react'
 import { eventAPI } from '../utils/api'
 
-export default function Trips() {
+export default function Events() {
   const [events, setEvents] = useState([])
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
