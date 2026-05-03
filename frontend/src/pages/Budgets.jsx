@@ -228,11 +228,11 @@ export default function Budgets() {
             
             {/* Total App Expenses Summary */}
             <div className="mt-6 pt-6 border-t border-slate-200">
-              <div className="bg-indigo-600-light rounded-xl p-4">
+              <div className="bg-indigo-50 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-indigo-900">Total App Expenses (This Month)</p>
-                    <p className="text-xs text-indigo-600 mt-1">
+                    <p className="text-xs text-indigo-700 mt-1">
                       Budgeted (₹{budgets.reduce((sum, b) => sum + calculateSpent(b.category), 0).toLocaleString()}) + 
                       Uncategorized (₹{transactions
                         .filter(t => !t.category && parseFloat(t.amount) < 0 && t.date.startsWith(new Date().toISOString().slice(0, 7)))

@@ -232,8 +232,8 @@ export default function StatementImport() {
                         </div>
 
                         {/* Uploaded */}
-                        <div className="bg-indigo-600-light p-3 rounded-xl border border-indigo-600">
-                          <p className="text-xs text-indigo-600 mb-1">From Uploaded File</p>
+                        <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-200">
+                          <p className="text-xs text-indigo-700 mb-1">From Uploaded File</p>
                           <p className="font-medium text-slate-800">{conflict.uploaded.description}</p>
                           <p className="text-sm text-slate-600 mt-1">
                             {conflict.uploaded.date} • ₹{Math.abs(parseFloat(conflict.uploaded.amount))}
@@ -257,8 +257,8 @@ export default function StatementImport() {
                           onClick={() => handleConflictChoice(idx, 'replace')}
                           className={`flex-1 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                             conflictResolutions[idx] === 'replace'
-                              ? 'bg-indigo-600 text-white shadow-soft'
-                              : 'bg-indigo-600-light text-indigo-600 hover:bg-indigo-600 hover:text-white'
+                              ? 'bg-indigo-600 text-white shadow-lg'
+                              : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white'
                           }`}
                         >
                           Replace with Upload
